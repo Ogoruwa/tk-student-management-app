@@ -7,7 +7,6 @@ from tkinter import StringVar, Canvas
 from tkinter.ttk import Frame, Entry, Label, Combobox, Button, Separator, Scrollbar
 from tkinter.constants import BOTH, LEFT, RIGHT, TOP, BOTTOM, VERTICAL, DISABLED, NORMAL, ALL, SUNKEN
 
-from storage import storage
 from models import Student, Employee
 
 
@@ -97,7 +96,7 @@ class LoginFrame(AppFrame):
         self._error_message.set("")
         username = self._entry_name.get()
 
-        employee: Employee = storage.get_object(Employee, username = username).first()
+        employee: Employee = Employee.get(username = username).first()
         # Have to check if the username matches, because the get_object method is case insensitive
         if not employee or employee.username != username:
             self._error_message.set("User not found")

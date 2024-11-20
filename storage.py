@@ -1,17 +1,10 @@
-from sqlalchemy import create_engine, update
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
-
+from settings import get_settings
 
 BaseModel = declarative_base()
-
-
-HOST = "localhost"
-USER = "tester"
-PASSWORD = None
-DATABASE = "tester"
-
 
 
 class Storage:
@@ -59,10 +52,18 @@ class Storage:
         return session
     
 
-def setup_storage(host: str, database: str, user: str, password: str) -> Storage:
+def setup_storage(backend: str, host: str, database: str, user: str, password: str) -> Storage:
     """Setups up connection to database and returns `Storage` object with active session"""
-    password = f":{password}" if password else ""
-    url = f"mariadb+mysqlconnector://{user}{password}@{host}/{database}"
+    if backend == "sqlite":
+        url = f"sqlite:///{database}"
+    else:
+        url = URL(
+            backend,
+            host = host, 
+            database = database,
+            username = username,
+            password = password,
+        )
 
     engine = create_engine(url, echo=True)    
     BaseModel.metadata.create_all(engine)
@@ -71,5 +72,6 @@ def setup_storage(host: str, database: str, user: str, password: str) -> Storage
     return storage
 
 
-storage = setup_storage(HOST, DATABASE, USER, PASSWORD)
+settings = get_settings()
+storage = setup_storage(settings.BACKEND, settings.HOST, settings.DATABASE, settings.USER, settings.PASSWORD)
 
